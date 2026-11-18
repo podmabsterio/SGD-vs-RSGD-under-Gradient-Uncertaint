@@ -1,0 +1,178 @@
+defaults:
+  - _self_
+  - override hydra/job_logging: disabled
+  - override hydra/hydra_logging: disabled
+
+seed: 42
+repeats: 100
+n_jobs: -1
+output_dir: output/quadratic_solver_comparison
+
+function:
+  _target_: src.functions.NoisyQuadratic
+  curvature: [1.0, 4.0]
+  initial: [2.0, 2.0]
+  noise_scales: [2.0, 0.5]
+  batch_size: 64
+  noise_std: 1.0
+
+optimizers:
+  - _target_: src.optimizers.RobustSGD
+    name: brent_tol_1e-4
+    steps: 500
+    learning_rate: 0.1
+    decay: 50.0
+    convergence_tolerance: 1.0e-3
+    patience: 5
+    rho: 1.0
+    solver: brent
+    tolerance: 1.0e-4
+    max_iterations: 20000
+    acceleration: false
+  - _target_: src.optimizers.RobustSGD
+    name: brent_tol_1e-2
+    steps: 500
+    learning_rate: 0.1
+    decay: 50.0
+    convergence_tolerance: 1.0e-3
+    patience: 5
+    rho: 1.0
+    solver: brent
+    tolerance: 1.0e-2
+    max_iterations: 20000
+    acceleration: false
+  - _target_: src.optimizers.RobustSGD
+    name: brent_tol_1e-1
+    steps: 500
+    learning_rate: 0.1
+    decay: 50.0
+    convergence_tolerance: 1.0e-3
+    patience: 5
+    rho: 1.0
+    solver: brent
+    tolerance: 1.0e-1
+    max_iterations: 20000
+    acceleration: false
+  - _target_: src.optimizers.RobustSGD
+    name: brent_tol_3e-1
+    steps: 500
+    learning_rate: 0.1
+    decay: 50.0
+    convergence_tolerance: 1.0e-3
+    patience: 5
+    rho: 1.0
+    solver: brent
+    tolerance: 3.0e-1
+    max_iterations: 20000
+    acceleration: false
+  - _target_: src.optimizers.RobustSGD
+    name: proximal_tol_1e-4
+    steps: 500
+    learning_rate: 0.1
+    decay: 50.0
+    convergence_tolerance: 1.0e-3
+    patience: 5
+    rho: 1.0
+    solver: proximal
+    tolerance: 1.0e-4
+    max_iterations: 20000
+    acceleration: false
+  - _target_: src.optimizers.RobustSGD
+    name: proximal_tol_1e-2
+    steps: 500
+    learning_rate: 0.1
+    decay: 50.0
+    convergence_tolerance: 1.0e-3
+    patience: 5
+    rho: 1.0
+    solver: proximal
+    tolerance: 1.0e-2
+    max_iterations: 20000
+    acceleration: false
+  - _target_: src.optimizers.RobustSGD
+    name: proximal_tol_1e-1
+    steps: 500
+    learning_rate: 0.1
+    decay: 50.0
+    convergence_tolerance: 1.0e-3
+    patience: 5
+    rho: 1.0
+    solver: proximal
+    tolerance: 1.0e-1
+    max_iterations: 20000
+    acceleration: false
+  - _target_: src.optimizers.RobustSGD
+    name: proximal_tol_3e-1
+    steps: 500
+    learning_rate: 0.1
+    decay: 50.0
+    convergence_tolerance: 1.0e-3
+    patience: 5
+    rho: 1.0
+    solver: proximal
+    tolerance: 3.0e-1
+    max_iterations: 20000
+    acceleration: false
+  - _target_: src.optimizers.RobustSGD
+    name: proximal_accelerated_tol_1e-4
+    steps: 500
+    learning_rate: 0.1
+    decay: 50.0
+    convergence_tolerance: 1.0e-3
+    patience: 5
+    rho: 1.0
+    solver: proximal
+    tolerance: 1.0e-4
+    max_iterations: 20000
+    acceleration: true
+  - _target_: src.optimizers.RobustSGD
+    name: proximal_accelerated_tol_1e-2
+    steps: 500
+    learning_rate: 0.1
+    decay: 50.0
+    convergence_tolerance: 1.0e-3
+    patience: 5
+    rho: 1.0
+    solver: proximal
+    tolerance: 1.0e-2
+    max_iterations: 20000
+    acceleration: true
+  - _target_: src.optimizers.RobustSGD
+    name: proximal_accelerated_tol_1e-1
+    steps: 500
+    learning_rate: 0.1
+    decay: 50.0
+    convergence_tolerance: 1.0e-3
+    patience: 5
+    rho: 1.0
+    solver: proximal
+    tolerance: 1.0e-1
+    max_iterations: 20000
+    acceleration: true
+  - _target_: src.optimizers.RobustSGD
+    name: proximal_accelerated_tol_3e-1
+    steps: 500
+    learning_rate: 0.1
+    decay: 50.0
+    convergence_tolerance: 1.0e-3
+    patience: 5
+    rho: 1.0
+    solver: proximal
+    tolerance: 3.0e-1
+    max_iterations: 20000
+    acceleration: true
+
+metrics:
+  - _target_: src.metrics.TrainLoss
+    save_per_iteration: true
+  - _target_: src.metrics.ValidationLoss
+    save_per_iteration: true
+  - _target_: src.metrics.SolverIterations
+    save_per_iteration: true
+  - _target_: src.metrics.SolverResidual
+    save_per_iteration: true
+
+hydra:
+  output_subdir: null
+  run:
+    dir: ${output_dir}
