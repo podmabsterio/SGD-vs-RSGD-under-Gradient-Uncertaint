@@ -10,6 +10,11 @@
 
 \begin{center}
     \textbf{SGD versus Robust SGD under Gradient Uncertainty}
+
+    Boris Zhukov and Denis Ryapolov
+
+    All project materials and code are available on
+    \href{https://github.com/podmabsterio/SGD-vs-RSGD-under-Gradient-Uncertaint/tree/main}{GitHub}.
 \end{center}
 
 \section{Derivation and interpretation}
@@ -57,7 +62,7 @@ to $d$, so it does not affect the chosen step.
 \subsection*{(b) Equivalent problem and uniqueness}
 Define
 \begin{equation}
-Q_k(D) \eqdef g_k^\top d+\rho\sqrt{d^\top S_kd} +\frac{\|d\|_2^2}{2\alpha_k}.
+Q_k(d) \eqdef g_k^\top d+\rho\sqrt{d^\top S_kd} +\frac{\|d\|_2^2}{2\alpha_k}.
 \label{eq:robust}
 \end{equation}
 Problem 
@@ -84,8 +89,11 @@ Also,
     Q_k(d)\geq-\|g_k\|_2\|d\|_2
                    +\frac{\|d\|_2^2}{2\alpha_k},
 \]
-which is convex quadratic function in $\|d\|$.
-Therefore, there exists a ball $B = \{d : \| d \| > r\}$ such that $Q_k(d) > M$ for every $d \not \in B$ and $M > 0$. Also $Q(0) = 0 < M$ and $0 \in B$. Using that $Q(k)$ is strongly convex and continuous we get that it has unique minimizer inside $B$.
+which is a quadratic function in $\|d\|$ with a positive leading coefficient.
+Therefore, for any $M>0$, there exists a closed ball
+$B=\{d:\|d\|\leq r\}$ such that $Q_k(d)>M$ for every $d\notin B$.
+Since $0\in B$ and $Q_k(0)=0<M$, the minimum attained by continuity
+on the compact ball $B$ is also a global minimum.
 Therefore the robust step exists and is unique.
 
 \subsection*{(c) When the robust step is zero}
@@ -212,7 +220,8 @@ both the length and the direction of the step.
 \subsection*{(e) Decrease of the objective}
 
 Assume $\nabla f(\theta_k)\in\mathcal G_k$ and that $\nabla f$ is
-$L$-Lipschitz continuous. By part (a),
+$L$-Lipschitz continuous. If $d_k=0$, the proposed inequality holds
+with equality. For $d_k\neq0$, part (a) gives
 \begin{equation}
     \begin{gathered}
     \nabla f(\theta_k)^\top d_k
@@ -224,7 +233,7 @@ $L$-Lipschitz continuous. By part (a),
 \end{equation}
 By \eqref{eq:optimality}
 \[
-g_k^\top +\rho\frac{d_k^\top S_k}{\sqrt{d_k^\top S_k d_k}} = -\alpha_k^{-1} d_k
+g_k^\top +\rho\frac{d_k^\top S_k}{\sqrt{d_k^\top S_k d_k}} = -\alpha_k^{-1} d_k^\top
 \]
 Using it in \eqref{eq:containment} implies
 \[
@@ -294,8 +303,10 @@ Throughout this section, we fix $k$ and omit its index. We need to solve
     \qquad Q(d)=g^\top d+\rho\sqrt{d^\top Sd}
                        +\frac{\|d\|_2^2}{2\alpha}.
 \]
-We use the diagonal matrix required in the assignment,
-$S=\operatorname{diag}(s_1,\ldots,s_p)$, with $s_j>0$.
+We use the diagonal estimate $S=\operatorname{diag}(s_1,\ldots,s_p)$
+of the batch mean covariance from equation~(4) of the assignment.
+Each $s_j$ is the sample variance of the observed gradients in coordinate
+$j$ divided by $b$, plus the positive correction $\varepsilon$.
 Before running a numerical solver, we handle two cases from Section 1:
 if $\rho=0$, then $d=-\alpha g$; if $g^\top S^{-1}g\leq\rho^2$,
 then $d=0$. Below, we assume $\rho>0$ and a nonzero solution.
@@ -451,14 +462,21 @@ its convergence.
 
 \subsection*{Choosing the inner solver}
 
+For tolerance $\eta$, the proximal solvers stop when the relative
+residual $\|\nabla Q(d)\|_2/\|g\|_2$ is at most $\eta$. Brent searches
+over $r/R\in[0,1]$ with \texttt{xatol} set to $\eta$ and accepts the
+step if the scalar minimization succeeds and the residual meets the
+same tolerance. If either check fails, Brent retries with
+\texttt{xatol} set to $\min(10^{-12},\eta^2)$ if the budget allows.
+Each solve is capped at 20{,}000 function evaluations for Brent or
+proximal updates. A failed solve ends the outer run.
+
 We tested Brent, plain proximal gradient, and accelerated proximal gradient
 on $f(\theta)=(\theta_1^2+4\theta_2^2)/2$, starting at $\theta_0=(2,2)$.
 Each gradient estimate used 64 observations with independent Gaussian
 noise of standard deviations $2$ and $0.5$ in the two coordinates.
 We used $\rho=1$ and $\alpha_k=0.1/\sqrt{1+k/50}$, with $k$ starting at zero.
-The 12 settings used the same 100 random seeds and ran for 500 outer steps.
-Both inner solvers checked the relative residual $\|\nabla Q(d)\|_2/\|g\|_2$
-for nonzero steps.
+The 12 settings used the same 100 seeds (42--141) and ran for 500 outer steps.
 
 We recorded the first step at which five consecutive updates satisfied
 $\|d_k\|_2\leq 10^{-3}(1+\|\theta_k\|_2)$, then continued to step 500.
@@ -555,16 +573,14 @@ for complete runs up to the stop criterion, measured with parallel repeats.
 
 \subsection*{Numerical checks}
 
-The four scripts in \texttt{tests/} reproduce the checks in Section 2(b)
-of the assignment. We used NumPy seed 42 to generate 30 cases for each
-direct check and gave all solvers the same inputs.
+For each direct check, we generated 30 cases with random seed 42
+and used the same inputs for all solvers.
 
 \noindent\textbf{Zero and small radius.}
-At $\rho=0$, the code returns the SGD step $-\alpha g$ directly.
-As a check of the implementation, we confirmed that the losses and
-parameters matched at every step of 20 paired runs of 50 steps
-(seeds 42--61). To see how close the methods are at a small positive
-radius, we repeated the comparison at $\rho=10^{-3}$ with Brent at
+At $\rho=0$, R-SGD reduces to the SGD step $-\alpha g$.
+The losses and parameters matched at every step of 20 paired runs
+of 50 steps (seeds 42--61). To compare the methods at a small positive
+radius, we repeated the experiment at $\rho=10^{-3}$ with Brent at
 tolerance $10^{-6}$. The mean loss gap peaked at $1.17\times10^{-4}$
 at step 7. By step 50 the gap was $(0.67\pm3.66)\times10^{-6}$, with
 a mean equal to $0.032\%$ of the mean SGD loss.
@@ -633,9 +649,8 @@ For the noisy quadratic with $\sigma=1$,
 $\Sigma=\operatorname{diag}(4,0.25)$, so the true covariance of $g$
 has trace $4.25/b$.
 
-The script \texttt{tests/check\_batch\_size.py} draws 1000 batches of each
-size at $\theta=(2,2)$, with seed $42+b$. For each size, we also compute
-the empirical covariance across the 1000 batch means.
+We drew 1000 batches of each size at $\theta=(2,2)$ with seed
+$42+b$ and computed the empirical covariance of their batch means.
 
 \begin{table}[!htbp]
     \centering
@@ -678,7 +693,7 @@ binary cross-entropy. For a single example, $\partial\ell/\partial t
 \[
     u=(\operatorname{sigmoid}(t)-y)(a_1,a_2,1)^\top .
 \]
-The implementation evaluates the loss as $\log(1+e^t)-yt$ using a stable
+We evaluate the loss as $\log(1+e^t)-yt$ using a stable
 log-sum-exp calculation.
 
 We sample with replacement and add independent $N(0,\sigma^2 I_3)$
@@ -937,7 +952,9 @@ loss and classification rule as in Section~\ref{sec:logistic}.
 With logit derivative $\delta=\operatorname{sigmoid}(w_2^\top h+b_2)-y$,
 backpropagation gives the output gradients $\delta h$ and $\delta$.
 Writing $q=\delta w_2\odot(1-h^2)$, the hidden gradients are $qa^\top$
-and $q$. 
+and $q$. We checked the mean training and per-example gradients against
+central differences with step $10^{-6}$ at five parameter vectors.
+The maximum absolute error was $1.46\times10^{-10}$.
 
 We use the same gradient noise and covariance estimation as in
 Simulation~1. The square root of the mean coordinate variance of
@@ -1144,14 +1161,18 @@ to improve on this nonconvex objective.
 
 At the same budget of 500 updates, SGD had lower mean test loss in
 11 of the 12 conditions and lower mean runtime in all 12. Both
-validation grids favored $\rho=0$. The selected R-SGD setting reached
-the small-step criterion sooner for logistic regression at $b=256$
-without added noise (19.8 vs.\ 26.3 ms). At $b=64$, the test-loss
+validation grids favored $\rho=0$. At $b=64$, the test-loss
 gap narrowed with added noise in both simulations. The only mean
 test-loss gain for R-SGD was on the network with $b=16$ and
 $\sigma=0.2$, and it was small relative to the spread across runs
-(Tables~\ref{tab:logistic-budget}, \ref{tab:logistic-convergence},
-and~\ref{tab:network-budget}).
+(Tables~\ref{tab:logistic-budget} and~\ref{tab:network-budget}).
+
+In logistic regression at $b=256$ and $\sigma=0$, both methods met the
+small-step rule in all 100 runs. The selected R-SGD setting reached
+it in 125 updates and 19.8 ms on average, compared with 268 updates
+and 26.3 ms for SGD (Table~\ref{tab:logistic-convergence}). This
+speed advantage concerns the stopping rule. Time to the same
+predictive quality would require a common validation-loss target.
 
 R-SGD reduces movement along directions with high estimated
 uncertainty, as shown by \eqref{eq:optimality}. For an $L$-smooth
@@ -1191,11 +1212,20 @@ batch, then uses that step's length in direction $-g_k$. Comparing
 the two at the same gradient budget would test whether the observed
 gain depends on changing direction.
 
+\section*{Author Contributions}
+
+\noindent\textbf{Boris Zhukov} wrote the code, designed and ran the
+experiments, and checked the theoretical derivations.
+
+\noindent\textbf{Denis Ryapolov} derived and proved the theoretical
+results, developed the methods for solving the R-SGD subproblem,
+and reviewed the code and experimental design.
+
 \begin{thebibliography}{9}
 \bibitem{scipy-brent}
 SciPy developers.
 \href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize_scalar.html}
-     {\texttt{scipy.optimize.minimize\_scalar}: documentation}.
+     {Documentation for bounded scalar minimization}.
 
 \bibitem{parikh-boyd}
 N.~Parikh and S.~Boyd.

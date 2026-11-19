@@ -420,6 +420,8 @@
         \setlength{\itemsep}{0.65em}
         \item \textbf{SGD at 500 updates:} lower mean test loss in 11/12 settings,
               faster in 12/12
+        \item \textbf{Earlier small-step stopping:} R-SGD 19.8 ms, SGD 26.3 ms\\
+              Logistic regression, \(b=256,\ \sigma=0\), 100/100 hits for both
         \item \textbf{With added noise:} smaller test-loss gap at \(b=64\) in both models
         \item<2-> \textbf{Large radii:} more zero steps, earlier rule hits, higher training loss
         \item<2-> \textbf{Prediction:} different rankings by training loss and test accuracy
