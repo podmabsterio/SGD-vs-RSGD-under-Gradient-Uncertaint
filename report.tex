@@ -306,18 +306,7 @@ For $d\neq 0$, the gradient is easy to compute:
 \[
     \nabla Q(d)=g+\rho\frac{Sd}{\sqrt{d^\top Sd}}+\alpha^{-1}d.
 \]
-However, the norm term is not differentiable at $d=0$. Also, its
-gradient depends on the direction of $d$, even when $d$ is very small.
-For example, let $S=I$ and let $e_1,e_2$ be two different coordinate
-unit vectors. For $\varepsilon>0$,
-\[
-    \frac{\|\nabla Q(\varepsilon e_1)-\nabla Q(\varepsilon e_2)\|_2}
-         {\|\varepsilon e_1-\varepsilon e_2\|_2}
-    =\frac{\rho}{\varepsilon}+\frac1\alpha
-    \longrightarrow\infty
-    \quad\text{as }\varepsilon\downarrow0.
-\]
-Thus the gradient is not globally Lipschitz continuous. Strong
+However, the norm term is not differentiable at $d=0$. Strong
 convexity still gives a unique solution, but it does not give a safe
 fixed step for ordinary gradient descent. This makes two approaches
 natural: scalar optimization using function values, and proximal

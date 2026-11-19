@@ -1,0 +1,431 @@
+\documentclass[aspectratio=169,xcolor=table]{beamer}
+\usetheme{Madrid}
+\usepackage{amsmath,amssymb,booktabs}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamersize{text margin left=7mm,text margin right=7mm}
+
+\title[SGD vs.\ R-SGD]{SGD versus Robust SGD\\under Gradient Uncertainty}
+\date{}
+
+\newcommand{\wideplot}[1]{%
+    \includegraphics[width=\linewidth,height=0.79\textheight,keepaspectratio]{#1}}
+
+\newcommand{\sweepplots}[1]{%
+    \includegraphics[width=0.32\linewidth]{plots/#1/sgd_train_loss_vs_lr.pdf}\hfill
+    \includegraphics[width=0.32\linewidth]{plots/#1/sgd_validation_loss_vs_lr.pdf}\hfill
+    \includegraphics[width=0.32\linewidth]{plots/#1/learning_rate_schedule.pdf}}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\section{Method and theory}
+
+\begin{frame}{Gradient uncertainty}
+    \begin{block}{Batch statistics}
+        Observations \(v_{k,1},\ldots,v_{k,b}\) with sample covariance \(\widehat\Sigma_k\)
+        \[
+            g_k=\frac1b\sum_{i=1}^b v_{k,i},
+            \qquad
+            S_k=\frac{\operatorname{diag}(\widehat\Sigma_k)}{b}+\varepsilon I
+        \]
+    \end{block}
+    \uncover<2->{
+        \begin{block}{Ellipsoidal uncertainty set}
+            \[
+                \mathcal G_k=\{g_k+S_k^{1/2}u:\|u\|_2\le\rho\}
+            \]
+            Center \(g_k\), shape \(S_k\), radius \(\rho\)
+        \end{block}
+    }
+\end{frame}
+
+\begin{frame}{Robust update}
+    \begin{block}{Worst-case linear loss change}
+        \[
+            \max_{h\in\mathcal G_k} h^\top d
+            =g_k^\top d+\rho\|S_k^{1/2}d\|_2
+        \]
+    \end{block}
+    \begin{block}{Unique step from a strongly convex subproblem}
+        \[
+            d_k=\arg\min_d
+            \left\{g_k^\top d+\rho\|S_k^{1/2}d\|_2
+                 +\frac{\|d\|_2^2}{2\alpha_k}\right\},
+            \qquad \theta_{k+1}=\theta_k+d_k
+        \]
+    \end{block}
+    \begin{center}
+        \(\rho=0\): ordinary SGD, \(d_k=-\alpha_k g_k\)
+    \end{center}
+\end{frame}
+
+\begin{frame}{Zero steps and isotropic shrinkage}
+    \begin{alertblock}{Exact zero-step condition}
+        \[
+            d_k=0 \quad\Longleftrightarrow\quad
+            \|S_k^{-1/2}g_k\|_2\le\rho
+        \]
+        Possible even away from a stationary point
+    \end{alertblock}
+    \begin{block}{Isotropic uncertainty: \(S_k=sI\)}
+        \[
+            d_k=-\alpha_k
+            \left(1-\frac{\rho\sqrt{s}}{\|g_k\|_2}\right)_+g_k
+            \qquad (g_k\ne 0)
+        \]
+        Nonzero step along \(-g_k\), length at most \(\alpha_k\|g_k\|_2\)
+    \end{block}
+\end{frame}
+
+\begin{frame}{Anisotropy and conditional descent}
+    \begin{block}{Optimality for \(d_k\ne 0\)}
+        \[
+            g_k+\rho\frac{S_kd_k}{r_k}+\frac{d_k}{\alpha_k}=0,
+            \qquad r_k=\|S_k^{1/2}d_k\|_2
+        \]
+        For diagonal \(S_k\):
+        \(\displaystyle
+            (d_k)_j=-\frac{\alpha_k(g_k)_j}{1+\alpha_k\rho s_{k,j}/r_k}
+        \)
+    \end{block}
+    \begin{block}{\(L\)-smooth loss and \(\nabla f(\theta_k)\in\mathcal G_k\)}
+        \[
+            f(\theta_k+d_k)\le f(\theta_k)-
+            \left(\alpha_k^{-1}-L/2\right)\|d_k\|_2^2
+        \]
+        Strict decrease for \(d_k\ne 0\) and \(0<\alpha_k<2/L\)
+    \end{block}
+\end{frame}
+
+\section{Implementation}
+
+\begin{frame}{Inner solver selection: noisy quadratic, 100 repeats}
+    \centering
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \begin{tabular}{lcrrrrr}
+        \toprule
+        Solver & Rel.\ tol. & Stop step
+        & \shortstack{Time to stop\\(ms)}
+        & \shortstack{Loss at stop\\(\(10^{-3}\))}
+        & \shortstack{Loss at 500\\(\(10^{-4}\))}
+        & \shortstack{Inner count\\(500 steps)} \\
+        \midrule
+        Brent & \(10^{-4}\) & 126.5 & \(20.3\pm16.5\) & \(4.52\pm7.96\) & \(2.27\pm2.79\) & 3410 \\
+        \rowcolor{blue!10}
+        \textbf{Brent} & \(\mathbf{10^{-2}}\) & 125.8 & \(15.1\pm7.1\) & \(4.52\pm7.96\) & \(2.27\pm2.79\) & 2774 \\
+        Brent & \(10^{-1}\) & 126.9 & \(14.7\pm8.2\) & \(4.47\pm7.93\) & \(2.27\pm2.78\) & 2311 \\
+        Brent & \(3\cdot10^{-1}\) & 161.7 & \(16.5\pm9.8\) & \(3.19\pm6.71\) & \(2.22\pm2.66\) & 1712 \\
+        \midrule
+        Proximal & \(10^{-4}\) & 126.5 & \(113.5\pm51.9\) & \(4.52\pm7.96\) & \(2.27\pm2.79\) & 23985 \\
+        Proximal & \(10^{-2}\) & 125.6 & \(50.3\pm18.5\) & \(4.81\pm8.36\) & \(2.25\pm2.76\) & 10196 \\
+        Proximal & \(10^{-1}\) & 114.4 & \(23.8\pm8.5\) & \(7.76\pm10.45\) & \(2.01\pm2.47\) & 3771 \\
+        Proximal & \(3\cdot10^{-1}\) & 115.8 & \(14.7\pm5.3\) & \(24.72\pm18.00\) & \(4.41\pm4.81\) & 1486 \\
+        \midrule
+        Proximal (acc.) & \(10^{-4}\) & 126.5 & \(61.0\pm23.0\) & \(4.52\pm7.96\) & \(2.27\pm2.79\) & 11418 \\
+        Proximal (acc.) & \(10^{-2}\) & 125.7 & \(20.0\pm8.6\) & \(4.57\pm8.02\) & \(2.28\pm2.80\) & 3025 \\
+        Proximal (acc.) & \(10^{-1}\) & 112.2 & \(14.8\pm6.2\) & \(8.34\pm11.88\) & \(2.06\pm2.51\) & 1923 \\
+        Proximal (acc.) & \(3\cdot10^{-1}\) & 114.1 & \(12.4\pm5.1\) & \(22.63\pm16.81\) & \(3.68\pm4.29\) & 1062 \\
+        \bottomrule
+    \end{tabular}
+\end{frame}
+
+\begin{frame}{Numerical checks}
+    \begin{columns}[c,onlytextwidth]
+        \begin{column}{0.59\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/zero_radius_check/train_loss_difference.pdf}
+            \par\small Train loss difference (R-SGD minus SGD)\\
+            \(\rho=10^{-3}\), 20 paired seeds, mean \(\pm\) SD
+        \end{column}
+        \begin{column}{0.38\textwidth}
+            \small
+            \begin{itemize}
+                \item \(\rho=0\): exact match with SGD
+                \item Isotropic step: max.\ error \(<1.5\cdot10^{-8}\)
+                \item At \(\|S^{-1/2}g\|_2=1\):\\
+                      nonzero at \(\rho=0.9\), zero at \(1\) and \(1.1\)
+                \item Anisotropic step: max.\ relative residual \(<10^{-6}\)
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Effect of batch size}
+    \framesubtitle{Noisy quadratic, 1,000 batches per size}
+    \centering
+    \[
+        \operatorname{Cov}(g)=\Sigma/b,
+        \qquad \operatorname{tr}(\Sigma)=4.25
+    \]
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{rrrr}
+        \toprule
+        \(b\) & \(\operatorname{tr}(S)\), mean \(\pm\) SD
+        & \(b\) times mean trace & \(b\) times empirical trace \\
+        \midrule
+        8   & \(0.52794\pm0.26173\) & 4.2235 & 4.3441 \\
+        32  & \(0.13308\pm0.03132\) & 4.2587 & 4.1182 \\
+        128 & \(0.03332\pm0.00388\) & 4.2653 & 4.4307 \\
+        512 & \(0.00832\pm0.00051\) & 4.2573 & 4.2204 \\
+        \bottomrule
+    \end{tabular}
+    \vspace{1em}
+
+    Ellipsoid axis lengths approximately proportional to \(b^{-1/2}\)
+\end{frame}
+
+\section{Experimental design}
+
+\begin{frame}{Datasets and models}
+    \framesubtitle{Binary cross-entropy, 512 / 256 / 512 training / validation / test examples}
+    \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.48\textwidth}
+            \begin{block}{Simulation 1: logistic regression}
+                Gaussian classes, \(y\in\{0,1\}\)
+                \[
+                    a\sim\mathcal N((2y-1)(1,1)^\top,I_2)
+                \]
+                Logit \(w^\top a+c\)
+
+                Zero initialization, 3 parameters
+            \end{block}
+        \end{column}
+        \begin{column}{0.49\textwidth}
+            \begin{block}{Simulation 2: two-layer network}
+                Noisy semicircles, \(t\sim U[0,\pi]\)
+                \[
+                    (\cos t,\sin t),\quad (1-\cos t,\tfrac12-\sin t)
+                \]
+                Feature noise \(\mathcal N(0,0.1^2 I_2)\)
+
+                Logit \(w_2^\top\tanh(W_1 a+b_1)+b_2\)
+
+                8 hidden units, 33 parameters, Xavier initialization
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Paired tuning and evaluation}
+    \small
+    \begin{itemize}
+        \item 500 updates, paired initializations, batch indices and noise draws
+        \item Gradient observations \(v_{k,i}=u_i(\theta_k)+\sigma z_{k,i}\),
+              \(z_{k,i}\sim\mathcal N(0,I)\)
+        \item Tuning at \(b=64\): SGD schedule first, then R-SGD \((\alpha_0,\rho)\) on validation loss
+        \item Frozen settings on separate seeds; batch sweep \(b\in\{16,64,256\}\) at \(\sigma=0\)
+        \item Noise sweep at \(b=64\), plus \(b=16\) at the highest noise level
+    \end{itemize}
+    \begin{center}
+        \begin{tabular}{lccc}
+            \toprule
+            Model & Repeats per setting & Tuning \(\sigma\) & Evaluation noise levels \\
+            \midrule
+            Logistic regression & 100 & 0.25 & \(0,\ 0.25,\ 0.5\) \\
+            Two-layer network & 50 & 0.1 & \(0,\ 0.1,\ 0.2\) \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+    \begin{block}{Stopping statistics alongside the fixed budget}
+        First hit: five consecutive steps with \(\|d_k\|_2\le 10^{-3}(1+\|\theta_k\|_2)\)
+    \end{block}
+\end{frame}
+
+\section{Logistic regression}
+
+\begin{frame}{Logistic regression: SGD learning rates}
+    \framesubtitle{500 updates, mean \(\pm\) sample SD across 100 runs}
+    \centering
+    \sweepplots{logistic}
+
+    \vspace{0.8em}
+    \(\alpha=0.1\) selected for SGD, constant schedule for both methods
+\end{frame}
+
+\begin{frame}{Logistic regression: R-SGD training grid}
+    \framesubtitle{Mean training loss at update 500}
+    \centering
+    \renewcommand{\arraystretch}{1.25}
+    \setlength{\tabcolsep}{4pt}
+    \input{plots/logistic/rsgd_train_loss_grid.tex}
+\end{frame}
+
+\begin{frame}{Logistic regression: R-SGD validation grid}
+    \framesubtitle{Mean validation loss at update 500}
+    \centering
+    \renewcommand{\arraystretch}{1.18}
+    \setlength{\tabcolsep}{4pt}
+    \input{plots/logistic/rsgd_validation_loss_grid.tex}
+    \vspace{0.6em}
+
+    \begin{block}{Selected R-SGD setting: \(\rho=2\), \(\alpha=0.7\)}
+        Validation loss \(0.20679\) vs.\ \(0.20615\) at the grid minimum
+    \end{block}
+\end{frame}
+
+\begin{frame}{Logistic regression: radius sensitivity}
+    \framesubtitle{Fixed \(\alpha=0.1\), \(b=64\), \(\sigma=0.25\)}
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.12}
+    \begin{tabular}{rrrrrr}
+        \toprule
+        \(\rho\) & Train loss & Zero steps (\%) & Relative step length & Hits & Time (ms) \\
+        \midrule
+        0     & \(0.1691\pm0.0005\) & \(0.00\pm0.00\) & \(1.000\pm0.000\) & 1/100    & \(51.4\pm29.5\) \\
+        0.05  & \(0.1693\pm0.0005\) & \(0.00\pm0.00\) & \(0.968\pm0.001\) & 1/100    & \(96.6\pm21.4\) \\
+        0.25  & \(0.1701\pm0.0005\) & \(0.23\pm0.25\) & \(0.845\pm0.004\) & 17/100   & \(80.0\pm13.8\) \\
+        0.5   & \(0.1713\pm0.0006\) & \(1.59\pm0.57\) & \(0.704\pm0.006\) & 63/100   & \(74.6\pm22.2\) \\
+        1     & \(0.1753\pm0.0006\) & \(9.36\pm1.13\) & \(0.480\pm0.007\) & 100/100  & \(45.8\pm14.4\) \\
+        2     & \(0.1905\pm0.0009\) & \(30.69\pm1.70\) & \(0.243\pm0.004\) & 100/100 & \(29.0\pm8.3\) \\
+        4     & \(0.2383\pm0.0015\) & \(55.16\pm1.55\) & \(0.098\pm0.002\) & 100/100 & \(18.6\pm6.9\) \\
+        \bottomrule
+    \end{tabular}
+
+    \medskip
+    Time to first hit or update 500, averaged over all runs
+\end{frame}
+
+\begin{frame}{Logistic regression: results at update 500}
+    \framesubtitle{Mean \(\pm\) sample SD across 100 runs}
+    \centering
+    \small
+    \setlength{\tabcolsep}{3pt}
+    \resizebox{\linewidth}{!}{\input{plots/logistic/budget_table.tex}}
+\end{frame}
+
+\begin{frame}{Logistic regression: stopping statistics}
+    \framesubtitle{First-hit statistics among hits, update 500 for zero-hit rows}
+    \centering
+    \small
+    \input{plots/logistic/convergence_table.tex}
+\end{frame}
+
+\begin{frame}{Logistic regression: added gradient noise}
+    \framesubtitle{\(b=64\), mean \(\pm\) SD from update 200}
+    \centering
+    \wideplot{plots/logistic/noise_losses.pdf}
+\end{frame}
+
+\begin{frame}{Logistic regression: batch size}
+    \framesubtitle{Training loss by updates and by example gradients, \(\sigma=0\)}
+    \centering
+    \wideplot{plots/logistic/batch_losses.pdf}
+\end{frame}
+
+\begin{frame}{Logistic regression: decision boundaries}
+    \framesubtitle{Test set, evaluation seed 1042, update 500}
+    \centering
+    \wideplot{plots/logistic/decision_boundaries.pdf}
+\end{frame}
+
+\section{Two-layer network}
+
+\begin{frame}{Two-layer network: SGD learning rates}
+    \framesubtitle{500 updates, mean \(\pm\) sample SD across 50 runs}
+    \centering
+    \sweepplots{network}
+
+    \vspace{0.8em}
+    \(\alpha_0=6\) selected for SGD, schedule \(\alpha_k=\alpha_0/\sqrt{1+k/50}\) for both methods
+\end{frame}
+
+\begin{frame}{Two-layer network: R-SGD training grid}
+    \framesubtitle{Mean training loss at update 500}
+    \centering
+    \renewcommand{\arraystretch}{1.12}
+    \setlength{\tabcolsep}{4pt}
+    \input{plots/network/rsgd_train_loss_grid.tex}
+\end{frame}
+
+\begin{frame}{Two-layer network: R-SGD validation grid}
+    \framesubtitle{Mean validation loss at update 500}
+    \centering
+    \renewcommand{\arraystretch}{1.08}
+    \setlength{\tabcolsep}{4pt}
+    \input{plots/network/rsgd_validation_loss_grid.tex}
+    \vspace{0.4em}
+
+    \begin{block}{Selected R-SGD setting: \(\rho=1\), \(\alpha_0=6\)}
+        Validation loss \(0.01244\) vs.\ \(0.00998\) at the grid minimum
+    \end{block}
+\end{frame}
+
+\begin{frame}{Two-layer network: radius sensitivity}
+    \framesubtitle{Fixed \(\alpha_0=6\), \(b=64\), \(\sigma=0.1\)}
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.10}
+    \begin{tabular}{rrrrrr}
+        \toprule
+        \(\rho\) & Train loss & Zero steps (\%) & Relative step length & Hits & Time (ms) \\
+        \midrule
+        0   & \(0.0065\pm0.0012\) & \(0.00\pm0.00\) & \(1.000\pm0.000\) & 0/50  & \(74.8\pm11.8\) \\
+        0.5 & \(0.0071\pm0.0014\) & \(0.00\pm0.00\) & \(0.907\pm0.003\) & 0/50  & \(114.4\pm19.7\) \\
+        1   & \(0.0083\pm0.0021\) & \(0.00\pm0.00\) & \(0.815\pm0.006\) & 0/50  & \(117.6\pm19.7\) \\
+        2   & \(0.0222\pm0.0443\) & \(0.00\pm0.00\) & \(0.634\pm0.012\) & 0/50  & \(122.0\pm14.4\) \\
+        3   & \(0.0615\pm0.0727\) & \(0.02\pm0.07\) & \(0.449\pm0.020\) & 0/50  & \(123.7\pm21.1\) \\
+        4   & \(0.1176\pm0.0777\) & \(3.53\pm1.66\) & \(0.270\pm0.019\) & 0/50  & \(111.7\pm16.8\) \\
+        6   & \(0.2224\pm0.0206\) & \(58.27\pm2.73\) & \(0.055\pm0.006\) & 50/50 & \(10.0\pm7.1\) \\
+        8   & \(0.2460\pm0.0060\) & \(88.36\pm1.60\) & \(0.012\pm0.002\) & 50/50 & \(3.9\pm2.3\) \\
+        \bottomrule
+    \end{tabular}
+
+    \medskip
+    Time to first hit or update 500, averaged over all runs
+\end{frame}
+
+\begin{frame}{Two-layer network: results at update 500}
+    \framesubtitle{Mean \(\pm\) sample SD across 50 runs}
+    \centering
+    \small
+    \setlength{\tabcolsep}{3pt}
+    \resizebox{\linewidth}{!}{\input{plots/network/budget_table.tex}}
+\end{frame}
+
+\begin{frame}{Two-layer network: stopping statistics}
+    \framesubtitle{First-hit statistics among hits, update 500 for zero-hit rows}
+    \centering
+    \small
+    \input{plots/network/convergence_table.tex}
+\end{frame}
+
+\begin{frame}{Two-layer network: added gradient noise}
+    \framesubtitle{\(b=64\), mean \(\pm\) SD from update 200}
+    \centering
+    \wideplot{plots/network/noise_losses.pdf}
+\end{frame}
+
+\begin{frame}{Two-layer network: batch size}
+    \framesubtitle{Training loss by updates and by example gradients, \(\sigma=0\)}
+    \centering
+    \wideplot{plots/network/batch_losses.pdf}
+\end{frame}
+
+\begin{frame}{Two-layer network: decision boundaries}
+    \framesubtitle{Test set, evaluation seed 1042, update 500}
+    \centering
+    \wideplot{plots/network/decision_boundaries.pdf}
+\end{frame}
+
+\section{Conclusions}
+
+\begin{frame}{Conclusions}
+    \begin{itemize}
+        \setlength{\itemsep}{0.65em}
+        \item \textbf{SGD at 500 updates:} lower mean test loss in 11/12 settings,
+              faster in 12/12
+        \item \textbf{With added noise:} smaller test-loss gap at \(b=64\) in both models
+        \item<2-> \textbf{Large radii:} more zero steps, earlier rule hits, higher training loss
+        \item<2-> \textbf{Prediction:} different rankings by training loss and test accuracy
+        \item<2-> \textbf{Next check:} robust step length with SGD direction,
+                   same gradient budget
+    \end{itemize}
+\end{frame}
+
+\end{document}
