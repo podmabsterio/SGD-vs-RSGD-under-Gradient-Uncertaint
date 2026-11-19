@@ -37,6 +37,8 @@ def run_single(function, optimizer, collector, repeat, seed):
     history = []
     values = {}
     final_metrics = None
+    budget_metrics = None
+    save_budget_metrics = getattr(collector, "save_budget_metrics", False)
     converged = False
     status, error = "success", ""
     try:
@@ -91,13 +93,21 @@ def run_single(function, optimizer, collector, repeat, seed):
                     "runtime": time.perf_counter() - started,
                 }
                 converged = True
-        if final_metrics is None:
-            final_metrics = {
-                **collector.evaluate(
-                    cached=values, function=function, optimizer=optimizer, **state
-                ),
-                "iterations": state["iteration"],
-            }
+        if final_metrics is None or save_budget_metrics:
+            if (
+                final_metrics is not None
+                and final_metrics["iterations"] == state["iteration"]
+            ):
+                budget_metrics = final_metrics
+            else:
+                budget_metrics = {
+                    **collector.evaluate(
+                        cached=values, function=function, optimizer=optimizer, **state
+                    ),
+                    "iterations": state["iteration"],
+                }
+            if final_metrics is None:
+                final_metrics = budget_metrics
     except Exception as exception:
         status = "failed"
         error = f"{type(exception).__name__}: {exception}"
@@ -105,7 +115,7 @@ def run_single(function, optimizer, collector, repeat, seed):
     convergence_iteration = final_metrics["iterations"] if converged else None
     if final_metrics is not None and not converged:
         final_metrics["runtime"] = total_runtime
-    return {
+    result = {
         "function": type(function).__name__,
         "optimizer": optimizer.name,
         "repeat": repeat,
@@ -123,3 +133,10 @@ def run_single(function, optimizer, collector, repeat, seed):
         "metrics": final_metrics,
         "history": history,
     }
+    if save_budget_metrics:
+        result["budget_metrics"] = (
+            {**budget_metrics, "runtime": total_runtime}
+            if budget_metrics is not None
+            else None
+        )
+    return result

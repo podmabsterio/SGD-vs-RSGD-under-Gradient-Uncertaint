@@ -1,0 +1,37 @@
+defaults:
+  - network_base
+  - _self_
+
+seed: 1042
+n_jobs: 1
+save_budget_metrics: true
+output_dir: output/network_eval/b64_s0
+
+function:
+  noise_std: 0.0
+
+optimizers:
+  - &sgd
+    _target_: src.optimizers.SGD
+    name: SGD
+    learning_rate: 6
+    decay: 50
+    steps: 500
+    convergence_tolerance: 1.0e-3
+    patience: 5
+  - <<: *sgd
+    _target_: src.optimizers.RobustSGD
+    name: R-SGD
+    rho: 1.0
+    solver: brent
+    tolerance: 1.0e-2
+
+metrics:
+  - _target_: src.metrics.TrainLoss
+    save_per_iteration: true
+  - _target_: src.metrics.ValidationLoss
+    save_per_iteration: true
+  - _target_: src.metrics.TestLoss
+  - _target_: src.metrics.TestAccuracy
+  - _target_: src.metrics.GradientEvaluations
+  - _target_: src.metrics.ZeroStepFrequency

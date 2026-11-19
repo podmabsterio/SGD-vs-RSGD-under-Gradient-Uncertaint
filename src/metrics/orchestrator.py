@@ -6,7 +6,8 @@ import pandas as pd
 
 
 class MetricOrchestrator:
-    def __init__(self, metrics):
+    def __init__(self, metrics, save_budget_metrics=False):
+        self.save_budget_metrics = save_budget_metrics
         self.metrics = {metric.name: metric for metric in metrics}
         self.names = list(self.metrics)
         self.iteration_names = [
@@ -53,13 +54,16 @@ class MetricOrchestrator:
             tables[name] = mean, std
         return tables
 
-    def final_summary(self, results):
+    def final_summary(self, results, snapshot_key="metrics", converged_only=False):
         names = self.names + ["runtime", "iterations"]
         summary = {}
         for optimizer in dict.fromkeys(result["optimizer"] for result in results):
             runs = [result for result in results if result["optimizer"] == optimizer]
             snapshots = [
-                result["metrics"] for result in runs if result["metrics"] is not None
+                result[snapshot_key]
+                for result in runs
+                if result[snapshot_key] is not None
+                and (not converged_only or result["converged"])
             ]
             metrics = {}
             for name in names:
@@ -111,6 +115,17 @@ class MetricOrchestrator:
         with (output_dir / "final_metrics.json").open("w") as stream:
             json.dump(self.final_summary(results), stream, indent=2, allow_nan=False)
             stream.write("\n")
+        if self.save_budget_metrics:
+            for filename, summary in (
+                ("budget_metrics.json", self.final_summary(results, "budget_metrics")),
+                (
+                    "convergence_metrics.json",
+                    self.final_summary(results, converged_only=True),
+                ),
+            ):
+                with (output_dir / filename).open("w") as stream:
+                    json.dump(summary, stream, indent=2, allow_nan=False)
+                    stream.write("\n")
         return tables
 
     @staticmethod

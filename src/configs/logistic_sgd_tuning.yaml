@@ -1,0 +1,32 @@
+defaults:
+  - logistic_base
+  - _self_
+
+output_dir: output/logistic_sgd_tuning
+
+optimizers:
+  - &sgd
+    _target_: src.optimizers.SGD
+    name: sgd_d0_lr0.03
+    learning_rate: 0.03
+    decay: 0
+    steps: 500
+    convergence_tolerance: 1.0e-3
+    patience: 5
+  - {<<: *sgd, name: sgd_d0_lr0.1, learning_rate: 0.1, decay: 0}
+  - {<<: *sgd, name: sgd_d0_lr0.3, learning_rate: 0.3, decay: 0}
+  - {<<: *sgd, name: sgd_d0_lr0.7, learning_rate: 0.7, decay: 0}
+  - {<<: *sgd, name: sgd_d0_lr1.5, learning_rate: 1.5, decay: 0}
+  - {<<: *sgd, name: sgd_d0_lr3.0, learning_rate: 3.0, decay: 0}
+  - {<<: *sgd, name: sgd_d50_lr0.03, learning_rate: 0.03, decay: 50}
+  - {<<: *sgd, name: sgd_d50_lr0.1, learning_rate: 0.1, decay: 50}
+  - {<<: *sgd, name: sgd_d50_lr0.3, learning_rate: 0.3, decay: 50}
+  - {<<: *sgd, name: sgd_d50_lr0.7, learning_rate: 0.7, decay: 50}
+  - {<<: *sgd, name: sgd_d50_lr1.5, learning_rate: 1.5, decay: 50}
+  - {<<: *sgd, name: sgd_d50_lr3.0, learning_rate: 3.0, decay: 50}
+
+metrics:
+  - _target_: src.metrics.TrainLoss
+    save_per_iteration: true
+  - _target_: src.metrics.ValidationLoss
+    save_per_iteration: true

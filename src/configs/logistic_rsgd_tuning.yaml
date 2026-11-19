@@ -1,0 +1,72 @@
+defaults:
+  - logistic_base
+  - _self_
+
+output_dir: output/logistic_rsgd_tuning
+
+optimizers:
+  - &rsgd
+    _target_: src.optimizers.RobustSGD
+    name: rsgd_lr0.03_rho0
+    learning_rate: 0.03
+    decay: 0
+    steps: 500
+    convergence_tolerance: 1.0e-3
+    patience: 5
+    solver: brent
+    tolerance: 1.0e-2
+    rho: 0
+  - {<<: *rsgd, name: rsgd_lr0.03_rho0.25, learning_rate: 0.03, rho: 0.25}
+  - {<<: *rsgd, name: rsgd_lr0.03_rho0.5, learning_rate: 0.03, rho: 0.5}
+  - {<<: *rsgd, name: rsgd_lr0.03_rho1, learning_rate: 0.03, rho: 1}
+  - {<<: *rsgd, name: rsgd_lr0.03_rho2, learning_rate: 0.03, rho: 2}
+  - {<<: *rsgd, name: rsgd_lr0.03_rho4, learning_rate: 0.03, rho: 4}
+  - {<<: *rsgd, name: rsgd_lr0.1_rho0, learning_rate: 0.1, rho: 0}
+  - {<<: *rsgd, name: rsgd_lr0.1_rho0.25, learning_rate: 0.1, rho: 0.25}
+  - {<<: *rsgd, name: rsgd_lr0.1_rho0.5, learning_rate: 0.1, rho: 0.5}
+  - {<<: *rsgd, name: rsgd_lr0.1_rho1, learning_rate: 0.1, rho: 1}
+  - {<<: *rsgd, name: rsgd_lr0.1_rho2, learning_rate: 0.1, rho: 2}
+  - {<<: *rsgd, name: rsgd_lr0.1_rho4, learning_rate: 0.1, rho: 4}
+  - {<<: *rsgd, name: rsgd_lr0.3_rho0, learning_rate: 0.3, rho: 0}
+  - {<<: *rsgd, name: rsgd_lr0.3_rho0.25, learning_rate: 0.3, rho: 0.25}
+  - {<<: *rsgd, name: rsgd_lr0.3_rho0.5, learning_rate: 0.3, rho: 0.5}
+  - {<<: *rsgd, name: rsgd_lr0.3_rho1, learning_rate: 0.3, rho: 1}
+  - {<<: *rsgd, name: rsgd_lr0.3_rho2, learning_rate: 0.3, rho: 2}
+  - {<<: *rsgd, name: rsgd_lr0.3_rho4, learning_rate: 0.3, rho: 4}
+  - {<<: *rsgd, name: rsgd_lr0.7_rho0, learning_rate: 0.7, rho: 0}
+  - {<<: *rsgd, name: rsgd_lr0.7_rho0.25, learning_rate: 0.7, rho: 0.25}
+  - {<<: *rsgd, name: rsgd_lr0.7_rho0.5, learning_rate: 0.7, rho: 0.5}
+  - {<<: *rsgd, name: rsgd_lr0.7_rho1, learning_rate: 0.7, rho: 1}
+  - {<<: *rsgd, name: rsgd_lr0.7_rho2, learning_rate: 0.7, rho: 2}
+  - {<<: *rsgd, name: rsgd_lr0.7_rho4, learning_rate: 0.7, rho: 4}
+  - {<<: *rsgd, name: rsgd_lr1.5_rho0, learning_rate: 1.5, rho: 0}
+  - {<<: *rsgd, name: rsgd_lr1.5_rho0.25, learning_rate: 1.5, rho: 0.25}
+  - {<<: *rsgd, name: rsgd_lr1.5_rho0.5, learning_rate: 1.5, rho: 0.5}
+  - {<<: *rsgd, name: rsgd_lr1.5_rho1, learning_rate: 1.5, rho: 1}
+  - {<<: *rsgd, name: rsgd_lr1.5_rho2, learning_rate: 1.5, rho: 2}
+  - {<<: *rsgd, name: rsgd_lr1.5_rho4, learning_rate: 1.5, rho: 4}
+  - {<<: *rsgd, name: rsgd_lr3.0_rho0, learning_rate: 3.0, rho: 0}
+  - {<<: *rsgd, name: rsgd_lr3.0_rho0.25, learning_rate: 3.0, rho: 0.25}
+  - {<<: *rsgd, name: rsgd_lr3.0_rho0.5, learning_rate: 3.0, rho: 0.5}
+  - {<<: *rsgd, name: rsgd_lr3.0_rho1, learning_rate: 3.0, rho: 1}
+  - {<<: *rsgd, name: rsgd_lr3.0_rho2, learning_rate: 3.0, rho: 2}
+  - {<<: *rsgd, name: rsgd_lr3.0_rho4, learning_rate: 3.0, rho: 4}
+
+  - {<<: *rsgd, name: rsgd_lr0.03_rho0.05, learning_rate: 0.03, rho: 0.05}
+  - {<<: *rsgd, name: rsgd_lr0.03_rho0.125, learning_rate: 0.03, rho: 0.125}
+  - {<<: *rsgd, name: rsgd_lr0.1_rho0.05, learning_rate: 0.1, rho: 0.05}
+  - {<<: *rsgd, name: rsgd_lr0.1_rho0.125, learning_rate: 0.1, rho: 0.125}
+  - {<<: *rsgd, name: rsgd_lr0.3_rho0.05, learning_rate: 0.3, rho: 0.05}
+  - {<<: *rsgd, name: rsgd_lr0.3_rho0.125, learning_rate: 0.3, rho: 0.125}
+  - {<<: *rsgd, name: rsgd_lr0.7_rho0.05, learning_rate: 0.7, rho: 0.05}
+  - {<<: *rsgd, name: rsgd_lr0.7_rho0.125, learning_rate: 0.7, rho: 0.125}
+  - {<<: *rsgd, name: rsgd_lr1.5_rho0.05, learning_rate: 1.5, rho: 0.05}
+  - {<<: *rsgd, name: rsgd_lr1.5_rho0.125, learning_rate: 1.5, rho: 0.125}
+  - {<<: *rsgd, name: rsgd_lr3.0_rho0.05, learning_rate: 3.0, rho: 0.05}
+  - {<<: *rsgd, name: rsgd_lr3.0_rho0.125, learning_rate: 3.0, rho: 0.125}
+
+metrics:
+  - _target_: src.metrics.TrainLoss
+    save_per_iteration: true
+  - _target_: src.metrics.ValidationLoss
+    save_per_iteration: true

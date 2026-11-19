@@ -18,7 +18,10 @@ from src.metrics import MetricOrchestrator
 def main(config: DictConfig):
     function = instantiate(config.function)
     optimizers = instantiate(config.optimizers)
-    collector = MetricOrchestrator(instantiate(config.metrics))
+    collector = MetricOrchestrator(
+        instantiate(config.metrics),
+        save_budget_metrics=config.get("save_budget_metrics", False),
+    )
     output_dir = Path(config.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     OmegaConf.save(config=config, f=output_dir / "config.yaml", resolve=True)

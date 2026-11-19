@@ -1,0 +1,25 @@
+defaults:
+  - _self_
+  - override hydra/job_logging: disabled
+  - override hydra/hydra_logging: disabled
+
+seed: 42
+repeats: 50
+n_jobs: 8
+output_dir: output/network
+
+function:
+  _target_: src.functions.TwoLayerNetwork
+  train_size: 512
+  validation_size: 256
+  test_size: 512
+  data_seed: 2026
+  standardize: false
+  hidden_size: 8
+  batch_size: 64
+  noise_std: 0.1
+
+hydra:
+  output_subdir: null
+  run:
+    dir: ${output_dir}

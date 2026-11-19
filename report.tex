@@ -13,6 +13,7 @@
 \end{center}
 
 \section{Derivation and interpretation}
+\label{sec:derivation}
 
 We use $\alpha_k>0$, $\rho\geq 0$, and a symmetric positive definite
 matrix $S_k$. The observed mean gradient and its uncertainty set are
@@ -473,37 +474,41 @@ for nonzero steps.
 We recorded the first step at which five consecutive updates satisfied
 $\|d_k\|_2\leq 10^{-3}(1+\|\theta_k\|_2)$, then continued to step 500.
 All runs reached this criterion. Table~\ref{tab:solver-comparison} reports
-loss both at this stop step and after the same budget of 500 steps.
-Train and validation loss coincide for this quadratic.
+the elapsed time up to the stop step and the loss both at that step and
+at step 500. The inner count sums Brent's evaluations of $F$ or the
+proximal updates across the 500 outer steps. Train and validation loss
+coincide for this quadratic.
 
 \begin{table}[!htbp]
     \centering
     \small
-    \caption{Solver comparison over 100 seeds. Losses are mean
-    $\pm$ standard deviation. Stop steps and work counts are means.}
+    \setlength{\tabcolsep}{5pt}
+    \caption{Solver comparison over 100 seeds. Loss and time are mean
+    $\pm$ standard deviation. Step and inner counts are means.}
     \label{tab:solver-comparison}
     \smallskip
-    \begin{tabular}{lccrrr}
+    \begin{tabular}{lccrrrr}
         \hline
         Solver & Tol. & Stop step
+        & \shortstack{Time to stop\\(ms)}
         & \shortstack{Loss at stop\\($10^{-3}$)}
-        & \shortstack{Loss at step 500\\($10^{-4}$)}
-        & \shortstack{Inner work\\at step 500} \\
+        & \shortstack{Loss at 500\\($10^{-4}$)}
+        & \shortstack{Inner count\\(500 steps)} \\
         \hline
-        Brent & $10^{-4}$ & 126.5 & $4.52 \pm 7.96$ & $2.27 \pm 2.79$ & 3410 \\
-        Brent & $10^{-2}$ & 125.8 & $4.52 \pm 7.96$ & $2.27 \pm 2.79$ & 2774 \\
-        Brent & $10^{-1}$ & 126.9 & $4.47 \pm 7.93$ & $2.27 \pm 2.78$ & 2311 \\
-        Brent & $3\cdot 10^{-1}$ & 161.7 & $3.19 \pm 6.71$ & $2.22 \pm 2.66$ & 1712 \\
+        Brent & $10^{-4}$ & 126.5 & $20.3 \pm 16.5$ & $4.52 \pm 7.96$ & $2.27 \pm 2.79$ & 3410 \\
+        Brent & $10^{-2}$ & 125.8 & $15.1 \pm 7.1$ & $4.52 \pm 7.96$ & $2.27 \pm 2.79$ & 2774 \\
+        Brent & $10^{-1}$ & 126.9 & $14.7 \pm 8.2$ & $4.47 \pm 7.93$ & $2.27 \pm 2.78$ & 2311 \\
+        Brent & $3\cdot 10^{-1}$ & 161.7 & $16.5 \pm 9.8$ & $3.19 \pm 6.71$ & $2.22 \pm 2.66$ & 1712 \\
         \hline
-        Proximal & $10^{-4}$ & 126.5 & $4.52 \pm 7.96$ & $2.27 \pm 2.79$ & 23985 \\
-        Proximal & $10^{-2}$ & 125.6 & $4.81 \pm 8.36$ & $2.25 \pm 2.76$ & 10196 \\
-        Proximal & $10^{-1}$ & 114.4 & $7.76 \pm 10.45$ & $2.01 \pm 2.47$ & 3771 \\
-        Proximal & $3\cdot 10^{-1}$ & 115.8 & $24.72 \pm 18.00$ & $4.41 \pm 4.81$ & 1486 \\
+        Proximal & $10^{-4}$ & 126.5 & $113.5 \pm 51.9$ & $4.52 \pm 7.96$ & $2.27 \pm 2.79$ & 23985 \\
+        Proximal & $10^{-2}$ & 125.6 & $50.3 \pm 18.5$ & $4.81 \pm 8.36$ & $2.25 \pm 2.76$ & 10196 \\
+        Proximal & $10^{-1}$ & 114.4 & $23.8 \pm 8.5$ & $7.76 \pm 10.45$ & $2.01 \pm 2.47$ & 3771 \\
+        Proximal & $3\cdot 10^{-1}$ & 115.8 & $14.7 \pm 5.3$ & $24.72 \pm 18.00$ & $4.41 \pm 4.81$ & 1486 \\
         \hline
-        Accelerated proximal & $10^{-4}$ & 126.5 & $4.52 \pm 7.96$ & $2.27 \pm 2.79$ & 11418 \\
-        Accelerated proximal & $10^{-2}$ & 125.7 & $4.57 \pm 8.02$ & $2.28 \pm 2.80$ & 3025 \\
-        Accelerated proximal & $10^{-1}$ & 112.2 & $8.34 \pm 11.88$ & $2.06 \pm 2.51$ & 1923 \\
-        Accelerated proximal & $3\cdot 10^{-1}$ & 114.1 & $22.63 \pm 16.81$ & $3.68 \pm 4.29$ & 1062 \\
+        Proximal (acc.) & $10^{-4}$ & 126.5 & $61.0 \pm 23.0$ & $4.52 \pm 7.96$ & $2.27 \pm 2.79$ & 11418 \\
+        Proximal (acc.) & $10^{-2}$ & 125.7 & $20.0 \pm 8.6$ & $4.57 \pm 8.02$ & $2.28 \pm 2.80$ & 3025 \\
+        Proximal (acc.) & $10^{-1}$ & 112.2 & $14.8 \pm 6.2$ & $8.34 \pm 11.88$ & $2.06 \pm 2.51$ & 1923 \\
+        Proximal (acc.) & $3\cdot 10^{-1}$ & 114.1 & $12.4 \pm 5.1$ & $22.63 \pm 16.81$ & $3.68 \pm 4.29$ & 1062 \\
         \hline
     \end{tabular}
 \end{table}
@@ -539,23 +544,663 @@ more slowly in the early iterations.
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=\linewidth]{plots/quadratic_solver_comparison/solver_iterations.pdf}
-    \caption{Cumulative inner work, shown as mean $\pm$ one standard
+    \caption{Cumulative inner count, shown as mean $\pm$ one standard
     deviation. The count is function evaluations for Brent and
     proximal updates for proximal gradient.}
     \label{fig:solver-work}
 \end{figure}
 
 \paragraph{Choice.}
-We use Brent with tolerance $10^{-1}$ in the following experiments.
-It matches the loss and stop step of Brent at $10^{-4}$ while using
-about one third fewer function evaluations over 500 steps
-(Figure~\ref{fig:solver-work}). Accelerated proximal at $10^{-2}$
-gives similar loss with about 3025 proximal updates, compared with
-2311 Brent evaluations. These counts describe different operations.
-Brent at $3\cdot 10^{-1}$ uses fewer evaluations and reaches a similar
-loss by step 500, but it triggers the outer stop rule about 35 steps
-later on average. Tolerance $10^{-1}$ keeps the stop behavior close to
-the tighter settings while reducing the inner work.
+We use Brent with tolerance $10^{-2}$ in the following experiments.
+It reaches a loss similar to accelerated proximal at $10^{-2}$ with a
+mean time to stop of 15.1 ms versus 20.0 ms. Brent at $10^{-1}$ is
+close at 14.7 ms but we prefer smaller tolerance since time is really close. At $10^{-1}$ Brent also uses about one third fewer
+function evaluations over 500 steps than at $10^{-4}$
+(Figure~\ref{fig:solver-work}). Brent at $3\cdot 10^{-1}$ reduces that
+count further, but it meets the stop criterion about 35 outer steps
+later and takes 16.5 ms on average. The fastest proximal setting takes
+12.4 ms and has a much higher loss at the stop step. These times are
+for complete runs up to the stop criterion, measured with parallel repeats.
+
+\clearpage
+
+\subsection*{Numerical checks}
+
+The four scripts in \texttt{tests/} reproduce the checks in Section 2(b)
+of the assignment. We used NumPy seed 42 to generate 30 cases for each
+direct check and gave all solvers the same inputs.
+
+\noindent\textbf{Zero and small radius.}
+At $\rho=0$, the code returns the SGD step $-\alpha g$ directly.
+As a check of the implementation, we confirmed that the losses and
+parameters matched at every step of 20 paired runs of 50 steps
+(seeds 42--61). To see how close the methods are at a small positive
+radius, we repeated the comparison at $\rho=10^{-3}$ with Brent at
+tolerance $10^{-6}$. The mean loss gap peaked at $1.17\times10^{-4}$
+at step 7. By step 50 the gap was $(0.67\pm3.66)\times10^{-6}$, with
+a mean equal to $0.032\%$ of the mean SGD loss.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.75\linewidth]{plots/zero_radius_check/train_loss_difference.pdf}
+    \caption{Paired training loss difference (R-SGD minus SGD) at
+    $\rho=10^{-3}$. The band is one standard deviation on either side
+    of the mean.}
+    \label{fig:small-radius-check}
+\end{figure}
+
+\noindent\textbf{Isotropic formula.}
+For $S=sI$, we subtracted the closed-form step from the computed step.
+Table~\ref{tab:step-checks} pools the signed errors over both coordinates
+and shows the maximum absolute error. It stayed below $1.5\times10^{-8}$
+for all three solvers.
+
+\noindent\textbf{Zero-step rule.}
+We chose anisotropic inputs with $\sqrt{g^\top S^{-1}g}=1$ in each case.
+At $\rho=0.9$, every step was nonzero and the step norm was
+$0.0589\pm0.0332$ for all three solvers. At $\rho=1$ and $1.1$, all
+30 steps per solver were exactly zero. This checks the boundary as well
+as both sides of it.
+
+\noindent\textbf{Optimality condition.}
+For each nonzero anisotropic step, we computed the relative residual
+from the returned $d$ and the equation in Section 1(d). The largest
+residual for each solver was below the requested tolerance $10^{-6}$.
+
+\begin{table}[!htbp]
+    \centering
+    \small
+    \caption{Direct numerical checks. Each average is shown with its
+    sample standard deviation.}
+    \label{tab:step-checks}
+    \smallskip
+    \begin{tabular}{lrrrr}
+        \hline
+        Solver & Isotropic error & Max. abs. error
+        & Relative residual & Max. residual \\
+        \hline
+        Brent
+        & $(0.61\pm3.33)10^{-9}$ & $1.42\cdot10^{-8}$
+        & $(4.40\pm5.55)10^{-8}$ & $1.94\cdot10^{-7}$ \\
+        Proximal
+        & $(-0.18\pm1.26)10^{-17}$ & $5.55\cdot10^{-17}$
+        & $(7.96\pm1.48)10^{-7}$ & $9.89\cdot10^{-7}$ \\
+        Proximal (acc.)
+        & $(-0.18\pm1.26)10^{-17}$ & $5.55\cdot10^{-17}$
+        & $(5.12\pm2.77)10^{-7}$ & $9.99\cdot10^{-7}$ \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\clearpage
+
+\subsection*{Effect of batch size}
+
+At a fixed point, let $\Sigma$ be the covariance of a single gradient
+observation. The $b$ observations are independent, so their mean $g$ has
+covariance $\Sigma/b$. The diagonal estimator uses a sample variance
+divided by $b$ in each coordinate, plus a small diagonal correction.
+For the noisy quadratic with $\sigma=1$,
+$\Sigma=\operatorname{diag}(4,0.25)$, so the true covariance of $g$
+has trace $4.25/b$.
+
+The script \texttt{tests/check\_batch\_size.py} draws 1000 batches of each
+size at $\theta=(2,2)$, with seed $42+b$. For each size, we also compute
+the empirical covariance across the 1000 batch means.
+
+\begin{table}[!htbp]
+    \centering
+    \small
+    \caption{Batch size and gradient uncertainty. The spread is the
+    sample standard deviation across batches.}
+    \label{tab:batch-size-check}
+    \smallskip
+    \begin{tabular}{rrrr}
+        \hline
+        $b$ & $\operatorname{tr}(S)$ (mean $\pm$ std.)
+        & $b$ times mean trace & $b$ times empirical trace \\
+        \hline
+        8   & $0.52794\pm0.26173$ & 4.2235 & 4.3441 \\
+        32  & $0.13308\pm0.03132$ & 4.2587 & 4.1182 \\
+        128 & $0.03332\pm0.00388$ & 4.2653 & 4.4307 \\
+        512 & $0.00832\pm0.00051$ & 4.2573 & 4.2204 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+In Table~\ref{tab:batch-size-check}, multiplying $b$ by four cuts the
+mean trace by about four. The estimated and empirical traces, multiplied
+by $b$, both stay close to 4.25. The estimates also vary less across
+batches at larger $b$. At fixed $\rho$, the ellipsoid axes have lengths
+proportional to $\sqrt{s_j}$, so a fourfold increase in batch size
+roughly halves those lengths in this example.
+
+\section{Simulation 1: logistic regression}
+\label{sec:logistic}
+
+We generated balanced train, validation, and test sets of 512, 256, and
+512 examples with data seed 2026. For label $y\in\{0,1\}$, the input
+$a\in\mathbb{R}^2$ is drawn from
+$N((2y-1)(1,1)^\top,I_2)$. We used the inputs as generated and started
+all three parameters at zero. The logit is $t=w^\top a+c$ and the
+prediction is 1 when $t\geq 0$. We minimize the unregularized mean
+binary cross-entropy. For a single example, $\partial\ell/\partial t
+=\operatorname{sigmoid}(t)-y$, so the per-example gradient is
+\[
+    u=(\operatorname{sigmoid}(t)-y)(a_1,a_2,1)^\top .
+\]
+The implementation evaluates the loss as $\log(1+e^t)-yt$ using a stable
+log-sum-exp calculation.
+
+We sample with replacement and add independent $N(0,\sigma^2 I_3)$
+noise to the observed gradients. The loss and accuracy always use
+clean data. At initialization the root mean of the three coordinate
+variances of the clean per-example gradients gives a standard
+deviation of $0.504$. We use $\sigma=0,0.25,0.5$, which adds zero,
+roughly half, or roughly one full natural standard deviation per
+coordinate. These values calibrate the noise at the starting point.
+At a fixed point, the covariance of the observed batch mean is
+$(\operatorname{Cov}(u)+\sigma^2 I_3)/b$. Thus changing $b$ also changes
+the noise, even when $\sigma=0$.
+
+\clearpage
+
+\subsection*{Choosing the learning rate schedule with SGD}
+
+We tuned at $b=64$ and $\sigma=0.25$, a nonzero noise level comparable
+to the sampling noise. Each setting used 100 runs (seeds 42--141),
+500 updates, and the same random inputs across settings. We compared
+constant steps with $\alpha_k=\alpha_0/\sqrt{1+k/50}$ on the grid
+$0.03,0.1,0.3,0.7,1.5,3$. This spans small steps and steps above
+the reciprocal full-batch smoothness bound, about 1.37 for these data.
+We chose by mean validation loss at update 500 and used training loss
+to understand the fit. The test set was reserved for evaluation.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.49\linewidth]{plots/logistic/sgd_train_loss_vs_lr.pdf}
+    \includegraphics[width=0.49\linewidth]{plots/logistic/sgd_validation_loss_vs_lr.pdf}
+    \caption{SGD loss at update 500 over the initial learning rate grid.
+    Error bars show one sample standard deviation over 100 runs.}
+    \label{fig:logistic-sgd-tuning}
+\end{figure}
+
+The best constant step was $0.1$ (validation loss 0.20615).
+The best decaying schedule started at $0.3$ (validation loss 0.20660).
+Both are interior grid points. The gap is small, so we use the
+slightly better constant schedule for both methods in the remaining
+experiments. Figure~\ref{fig:logistic-lr} shows how the two contenders
+compare over time.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.70\linewidth]{plots/logistic/learning_rate_schedule.pdf}
+    \caption{Learning rates of the two SGD settings with the lowest
+    validation loss in their respective schedule families.}
+    \label{fig:logistic-lr}
+\end{figure}
+
+\clearpage
+
+\begingroup
+\setlength{\intextsep}{7pt}
+\subsection*{Choosing the R-SGD parameters}
+
+We kept the constant schedule, used Brent with tolerance $10^{-2}$,
+and tested the same six learning rates at each radius. We started with
+$\rho=0,0.25,0.5,1,2,4$. The range spans radii below and above
+$\sqrt{3}$, the root mean square length of a three-dimensional noise
+vector with unit coordinate variances. We added $0.05$ and $0.125$ to
+check the interval near the best boundary point. Each setting used the
+same 100 tuning seeds and the same $b=64$, $\sigma=0.25$ protocol.
+
+\begin{table}[!htbp]
+    \centering
+    \small
+    \caption{R-SGD training loss at update 500 across learning rates
+    and radii. Entries are means over 100 runs.}
+    \label{tab:logistic-tune-train}
+    \smallskip
+    \input{plots/logistic/rsgd_train_loss_grid.tex}
+\end{table}
+
+\begin{table}[!htbp]
+    \centering
+    \small
+    \caption{R-SGD validation loss at update 500 across the same grid.}
+    \label{tab:logistic-tune-validation}
+    \smallskip
+    \input{plots/logistic/rsgd_validation_loss_grid.tex}
+\end{table}
+
+The lowest validation loss was 0.206151 at $\alpha_0=0.1$, $\rho=0$,
+which is exactly SGD. The best positive radius was $0.05$,
+which shortened the average step by only about 3\%
+(Table~\ref{tab:logistic-radius}). We chose $\rho=2$ for a stronger
+robust correction and used its best validation rate, $\alpha_0=0.7$.
+Its validation loss at update 500 was 0.20679, close to the overall
+minimum of 0.20615. In the same parallel sweep, its mean time to the
+first hit or update 500 was 13.2 ms, compared with 76.1 ms at
+$(\rho,\alpha_0)=(1,0.3)$. At $\rho=4$ the rule triggered sooner,
+but the best validation loss rose to 0.21842.
+
+In Table~\ref{tab:logistic-tune-validation}, the learning rate with
+the lowest validation loss stays at 0.1 through $\rho=0.5$, then rises
+to 0.3, 0.7, and 3 at $\rho=1,2,4$. A larger learning rate can
+compensate for stronger shrinkage. At $\rho=4$, the best rate on the
+grid is at its upper edge.
+
+\begin{table}[!htbp]
+    \centering
+    \small
+    \caption{Radius sensitivity at $b=64$, $\sigma=0.25$, and
+    $\alpha_0=0.1$. Loss and step statistics use update 500.
+    Time uses all 100 parallel repeats up to the first hit or step 500
+    if the rule was never met. Spreads are sample standard deviations.}
+    \label{tab:logistic-radius}
+    \smallskip
+    \begin{tabular}{rrrrrr}
+        \hline
+        $\rho$ & Train loss & Zero steps (\%) & Relative step length
+        & Hits & Time (ms) \\
+        \hline
+        0    & $0.1691\pm0.0005$ & $0.00\pm0.00$ & $1.000\pm0.000$ & $1/100$ & $51.4\pm29.5$ \\
+        0.05 & $0.1693\pm0.0005$ & $0.00\pm0.00$ & $0.968\pm0.001$ & $1/100$ & $96.6\pm21.4$ \\
+        0.25 & $0.1701\pm0.0005$ & $0.23\pm0.25$ & $0.845\pm0.004$ & $17/100$ & $80.0\pm13.8$ \\
+        0.5  & $0.1713\pm0.0006$ & $1.59\pm0.57$ & $0.704\pm0.006$ & $63/100$ & $74.6\pm22.2$ \\
+        1    & $0.1753\pm0.0006$ & $9.36\pm1.13$ & $0.480\pm0.007$ & $100/100$ & $45.8\pm14.4$ \\
+        2    & $0.1905\pm0.0009$ & $30.69\pm1.70$ & $0.243\pm0.004$ & $100/100$ & $29.0\pm8.3$ \\
+        4    & $0.2383\pm0.0015$ & $55.16\pm1.55$ & $0.098\pm0.002$ & $100/100$ & $18.6\pm6.9$ \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Table~\ref{tab:logistic-radius} averages
+$\|d_k\|/(\alpha_k\|g_k\|)$ over updates and runs. At $\rho=2$,
+the average step is about a quarter as long as SGD's at the same point,
+and nearly a third of steps are zero. Large radii trigger the rule
+sooner even as training loss rises. A control with the robust step
+length and direction $-g_k$ would isolate the role of direction.
+
+\clearpage
+\endgroup
+
+\subsection*{Evaluation under gradient noise}
+
+We used constant rates $\alpha_0=0.1$ for SGD and $\alpha_0=0.7$
+for R-SGD with $\rho=2$, and used 100 paired seeds
+(1042--1141) per condition, with the same batch indices and noise draws
+within each pair. We first varied $b=16,64,256$ at $\sigma=0$ and then
+varied $\sigma=0,0.25,0.5$ at $b=64$. The two sweeps share one
+condition, and we added $b=16$, $\sigma=0.5$ to check both sources of
+noise together. Every run did 500 updates. Time is measured per run
+with one worker, including evaluation during the run. All settings
+completed with zero failures.
+
+\begin{table}[!htbp]
+    \centering
+    \caption{Evaluation after 500 updates. The gradient count is for
+    per-example gradients used in updates. Entries with a spread show
+    mean $\pm$ sample standard deviation.}
+    \label{tab:logistic-budget}
+    \smallskip
+    \resizebox{\linewidth}{!}{\input{plots/logistic/budget_table.tex}}
+\end{table}
+
+\begin{table}[!htbp]
+    \centering
+    \caption{Update, time, and test accuracy at the first hit of
+    the five-small-step rule, averaged over runs that hit it. With
+    zero hits, the row instead reports these metrics at update 500
+    over all completed runs. One hit gives a single measurement.}
+    \label{tab:logistic-convergence}
+    \smallskip
+    \small
+    \input{plots/logistic/convergence_table.tex}
+\end{table}
+
+We use the small-step rule $\|d_k\|_2\leq
+10^{-3}(1+\|\theta_k\|_2)$ for five consecutive updates. At $b=64$,
+SGD hit the rule in 80, 1, and 0 of 100 runs as noise increased.
+R-SGD hit it in every run in all six conditions. For the clean
+batch $b=256$, where both methods hit the rule in all runs, the
+mean time was 19.8 ms for R-SGD and 26.3 ms for SGD.
+Small steps need not mean that the loss has settled. At
+$b=16$, $\sigma=0.5$, R-SGD hit the rule after 43 updates on
+average, with a mean test loss of 0.2357. Continuing to 500
+updates reduced this loss to 0.1934.
+
+\clearpage
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\linewidth]{plots/logistic/noise_losses.pdf}
+    \caption{Training and validation losses at each noise level for
+    $b=64$. The view starts at update 200 to show the differences
+    after the initial decline. Lines and bands are the mean and one
+    sample standard deviation.}
+    \label{fig:logistic-noise-losses}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\linewidth]{plots/logistic/batch_losses.pdf}
+    \caption{Training loss without added noise, by update count (top)
+    and by per-example gradient count over the common budget range
+    (bottom). Each panel shows both methods.}
+    \label{fig:logistic-batch-losses}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.90\linewidth]{plots/logistic/decision_boundaries.pdf}
+    \caption{Decision boundaries at update 500 on the clean test set,
+    for evaluation seed 1042. Both optimizers use $b=64$.}
+    \label{fig:logistic-boundaries}
+\end{figure}
+
+R-SGD ends with lower training loss in four of the six conditions.
+It has higher training loss at the strongest noise level for both
+batch sizes. In Figure~\ref{fig:logistic-batch-losses}, the small batch
+makes more updates at the same gradient count. The learning rate
+differs by method, so this compares the selected settings.
+Table~\ref{tab:logistic-radius} isolates radius at a fixed rate.
+
+From $\sigma=0$ to $\sigma=0.5$, SGD's mean test loss rises by
+0.00040 at $b=64$ and by 0.00074 at $b=16$. R-SGD's mean test
+loss falls by 0.00265 and 0.00102, respectively. The gap narrows
+with added noise, but SGD still has lower test loss at update 500
+in all six conditions. Accuracy is close for the two methods:
+the largest mean gap is 0.18 percentage points in favor of R-SGD
+at $b=16$, $\sigma=0$. The decision boundaries in
+Figure~\ref{fig:logistic-boundaries} also remain close.
+
+For these data, the validation grid favored $\rho=0$. The selected
+robust setting hits the rule quickly, but skips 45--67\% of updates
+and costs about 1.2--1.5 times as much as SGD over 500 steps.
+The faster hit time and the lower test loss at a fixed budget
+favor different methods. The spread reflects training randomness
+on one generated dataset. New data seeds would show whether
+these differences persist.
+
+\clearpage
+
+\begingroup
+\setlength{\intextsep}{7pt}
+\section{Simulation 2: two-layer network}
+\label{sec:network}
+
+We keep the split sizes and data seed from Simulation~1. For each
+example, we draw $t\sim U[0,\pi]$. The two classes have features
+$(\cos t,\sin t)$ and $(1-\cos t,\,1/2-\sin t)$ before adding
+$e\sim N(0,0.1^2 I_2)$. The classes are balanced, and the inputs
+are used as generated.
+
+The logit is $w_2^\top h+b_2$, where $h=\tanh(W_1a+b_1)$ has
+eight entries. This gives $16+8+8+1=33$ parameters. We initialize
+the two weight arrays independently and uniformly within
+$\pm\sqrt{6/10}$ and $\pm\sqrt{6/9}$, respectively, and set both biases
+to zero. Initial weights are shared within each pair. We use the same
+loss and classification rule as in Section~\ref{sec:logistic}.
+
+With logit derivative $\delta=\operatorname{sigmoid}(w_2^\top h+b_2)-y$,
+backpropagation gives the output gradients $\delta h$ and $\delta$.
+Writing $q=\delta w_2\odot(1-h^2)$, the hidden gradients are $qa^\top$
+and $q$. 
+
+We use the same gradient noise and covariance estimation as in
+Simulation~1. The square root of the mean coordinate variance of
+clean per-example gradients at 50 initializations was 0.184. We use
+$\sigma=0$, $0.1$, and $0.2$ to add zero, roughly half, or roughly
+one natural standard deviation per coordinate.
+
+\subsection*{Tuning}
+
+We follow the tuning procedure in Section~\ref{sec:logistic} with
+50 paired seeds (42--91) and 500 updates per setting, at $b=64$ and
+$\sigma=0.1$.
+The initial SGD grid favored its upper endpoint, so we added
+$\alpha_0=6,12,24$ under both schedules. At update 500, the best
+validation loss was 0.009985 with decay and $\alpha_0=6$, versus
+0.01235 with a constant rate of 3. Both minima lie inside the
+extended grid. We therefore keep decay 50 for both methods.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.49\linewidth]{plots/network/sgd_train_loss_vs_lr.pdf}
+    \includegraphics[width=0.49\linewidth]{plots/network/sgd_validation_loss_vs_lr.pdf}
+    \caption{Network SGD loss after 500 updates. Error bars are one
+    sample standard deviation across 50 runs.}
+    \label{fig:network-sgd-tuning}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.49\linewidth]{plots/network/learning_rate_schedule.pdf}
+    \caption{Learning rates of the best constant and decaying SGD settings.}
+    \label{fig:network-lr}
+\end{figure}
+
+\clearpage
+\endgroup
+
+\begingroup
+\setlength{\intextsep}{7pt}
+\subsection*{Choosing the radius}
+
+We cross the nine rates with radii of 0, 0.5, 1, 2, 3, 4, 6, and 8,
+using Brent with tolerance $10^{-2}$. The radii span the standardized
+noise scale $\sqrt{33}\simeq 5.74$. We rank the 72 settings by
+validation loss at update 500.
+
+\begin{table}[!htbp]
+    \centering
+    \small
+    \caption{Network R-SGD training loss at update 500. Entries are
+    means over 50 runs.}
+    \label{tab:network-tune-train}
+    \smallskip
+    \input{plots/network/rsgd_train_loss_grid.tex}
+\end{table}
+
+\begin{table}[!htbp]
+    \centering
+    \small
+    \caption{Network R-SGD validation loss at update 500.}
+    \label{tab:network-tune-validation}
+    \smallskip
+    \input{plots/network/rsgd_validation_loss_grid.tex}
+\end{table}
+
+The grid minimum is 0.009985 at $\rho=0$ and $\alpha_0=6$, with a
+standard deviation of 0.00286 across runs. Using that spread as a
+practical tolerance around the minimum leaves two positive-radius
+candidates, $\rho=0.5$ and $\rho=1$, both at $\alpha_0=6$. We
+choose $\rho=1$ for a stronger correction and a slightly lower
+mean time (151 vs.\ 155 ms in the parallel sweep). Its validation
+loss is 0.01244, compared with 0.01118 at $\rho=0.5$. Both settings
+lie inside the grid and use the full budget on every tuning run.
+The best setting at $\rho=6$ hits the rule in about 29 ms, with
+validation loss 0.14245. The best rate rises to 12 for radii
+2 through 6 (Table~\ref{tab:network-tune-validation}).
+
+\begin{table}[!htbp]
+    \centering
+    \small
+    \caption{Network radius sensitivity at $\alpha_0=6$, $b=64$, and
+    $\sigma=0.1$. Time uses all 50 parallel repeats, with the same
+    first-hit or budget rule as Table~\ref{tab:logistic-radius}.}
+    \label{tab:network-radius}
+    \smallskip
+    \begin{tabular}{rrrrrr}
+        \hline
+        $\rho$ & Train loss & Zero steps (\%) & Relative step length
+        & Hits & Time (ms) \\
+        \hline
+        0   & $0.0065\pm0.0012$ & $0.00\pm0.00$ & $1.000\pm0.000$ & $0/50$ & $74.8\pm11.8$ \\
+        0.5 & $0.0071\pm0.0014$ & $0.00\pm0.00$ & $0.907\pm0.003$ & $0/50$ & $114.4\pm19.7$ \\
+        1   & $0.0083\pm0.0021$ & $0.00\pm0.00$ & $0.815\pm0.006$ & $0/50$ & $117.6\pm19.7$ \\
+        2   & $0.0222\pm0.0443$ & $0.00\pm0.00$ & $0.634\pm0.012$ & $0/50$ & $122.0\pm14.4$ \\
+        3   & $0.0615\pm0.0727$ & $0.02\pm0.07$ & $0.449\pm0.020$ & $0/50$ & $123.7\pm21.1$ \\
+        4   & $0.1176\pm0.0777$ & $3.53\pm1.66$ & $0.270\pm0.019$ & $0/50$ & $111.7\pm16.8$ \\
+        6   & $0.2224\pm0.0206$ & $58.27\pm2.73$ & $0.055\pm0.006$ & $50/50$ & $10.0\pm7.1$ \\
+        8   & $0.2460\pm0.0060$ & $88.36\pm1.60$ & $0.012\pm0.002$ & $50/50$ & $3.9\pm2.3$ \\
+        \hline
+    \end{tabular}
+\end{table}
+
+At the chosen radius, steps are about 19\% shorter than an SGD step
+at the same point. At $\rho=6$ and $8$, most updates are zero and
+training loss is much higher. A larger rate can offset shorter
+nonzero steps, but it cannot recover a step suppressed by the
+covariance-weighted zero-step condition.
+
+\clearpage
+\endgroup
+
+\subsection*{Evaluation}
+
+With the settings frozen, we use 50 evaluation seeds (1042--1091)
+per condition. We repeat the three-batch sweep at $\sigma=0$, the
+three-noise sweep at $b=64$, and the joint condition of $b=16$,
+$\sigma=0.2$. The budget and timing protocol are the same as in
+Simulation~1. All evaluation runs finished without numerical failure.
+
+\begin{table}[!htbp]
+    \centering
+    \caption{Network results at update 500. Means and sample standard
+    deviations are across the 50 runs.}
+    \label{tab:network-budget}
+    \smallskip
+    \resizebox{\linewidth}{!}{\input{plots/network/budget_table.tex}}
+\end{table}
+
+\begin{table}[!htbp]
+    \centering
+    \caption{Network stopping statistics. As in
+    Table~\ref{tab:logistic-convergence}, zero-hit rows report
+    the results at update 500.}
+    \label{tab:network-convergence}
+    \smallskip
+    \small
+    \input{plots/network/convergence_table.tex}
+\end{table}
+
+With added noise, neither method hit the small-step rule. Without
+added noise, hit frequency depends on the batch size and method.
+For instance, at $b=64$ the R-SGD test loss at update 500
+averaged 0.0066 for the 26 hits and 0.0523 for the 24 misses.
+Accuracy at the first hit therefore describes a selected subset
+and can look much better than the overall result.
+
+\clearpage
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\linewidth]{plots/network/noise_losses.pdf}
+    \caption{Network training and validation losses at all three noise
+    levels. As before, the view starts at update 200 to show the late
+    behavior.}
+    \label{fig:network-noise-losses}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\linewidth]{plots/network/batch_losses.pdf}
+    \caption{Network training loss by update count (top) and by the
+    number of example gradients used (bottom), with $\sigma=0$.}
+    \label{fig:network-batch-losses}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.90\linewidth]{plots/network/decision_boundaries.pdf}
+    \caption{Network decision boundaries at update 500 for evaluation
+    seed 1042, shown against clean test examples.}
+    \label{fig:network-boundaries}
+\end{figure}
+
+At $b=64$ without added noise, R-SGD has test loss
+$0.0285\pm0.0611$, compared with $0.0053\pm0.0014$ for SGD.
+The R-SGD mean and spread both decrease with added noise, while
+SGD's test loss increases. With both the small
+batch and $\sigma=0.2$, R-SGD has slightly lower mean test loss
+(0.0146 vs.\ 0.0154). This is the only test-loss reversal among
+the six conditions, and the means are close relative to the
+spread.
+
+SGD has lower training loss in all six conditions. With added
+noise at $b=64$, R-SGD has slightly higher accuracy despite
+higher test loss. A change in predicted probabilities can affect
+cross-entropy without changing the predicted class. The two
+boundaries in Figure~\ref{fig:network-boundaries} illustrate how
+similar the labels can be for a single seed.
+
+The small batch makes more progress for a given number of example
+gradients (Figure~\ref{fig:network-batch-losses}), but in the clean
+R-SGD runs its final test loss also varies more across seeds.
+For this network on the fixed dataset, SGD gives the better
+overall balance of test loss and time: full R-SGD runs cost
+about 1.3--1.5 times as much. A longer budget with the same seeds
+would show whether the high-loss R-SGD runs at $\sigma=0$ continue
+to improve on this nonconvex objective.
+
+\clearpage
+
+\section{Conclusions}
+
+At the same budget of 500 updates, SGD had lower mean test loss in
+11 of the 12 conditions and lower mean runtime in all 12. Both
+validation grids favored $\rho=0$. The selected R-SGD setting reached
+the small-step criterion sooner for logistic regression at $b=256$
+without added noise (19.8 vs.\ 26.3 ms). At $b=64$, the test-loss
+gap narrowed with added noise in both simulations. The only mean
+test-loss gain for R-SGD was on the network with $b=16$ and
+$\sigma=0.2$, and it was small relative to the spread across runs
+(Tables~\ref{tab:logistic-budget}, \ref{tab:logistic-convergence},
+and~\ref{tab:network-budget}).
+
+R-SGD reduces movement along directions with high estimated
+uncertainty, as shown by \eqref{eq:optimality}. For an $L$-smooth
+training loss, Section~\ref{sec:derivation}(e) guarantees descent
+on a nonzero step when the uncertainty set contains the full
+gradient and $\alpha_k<2/L$. This explains how the correction can
+protect a training update when the observed gradient is unreliable.
+Coverage of the true gradient is uncertain with a finite batch.
+
+The batch mean has covariance $(\operatorname{Cov}(u)+\sigma^2 I)/b$.
+We estimate its diagonal in $S_k$. For a fixed observed gradient,
+scaling $S_k$ up increases the penalty just as a larger radius does.
+A larger learning rate can offset shorter nonzero
+steps, which is consistent with the shift toward larger rates at
+larger radii in Tables~\ref{tab:logistic-tune-validation}
+and~\ref{tab:network-tune-validation}. If
+$g_k^\top S_k^{-1}g_k\leq\rho^2$, the step is zero for any learning
+rate, even away from a minimizer. In the network sensitivity study,
+$\rho=6$ triggered the stopping rule in all 50 runs, with 58\% zero
+steps and a final training loss of 0.222
+(Table~\ref{tab:network-radius}). Frequent skipped updates can
+satisfy the stopping rule while the training loss is still high.
+
+Training loss and test accuracy sometimes ranked the methods
+differently. For the network at $b=64$ and $\sigma=0.1$, SGD had
+lower training loss (0.0065 vs.\ 0.0083), while R-SGD had slightly
+higher test accuracy (99.98\% vs.\ 99.95\%,
+Table~\ref{tab:network-budget}). Cross-entropy responds
+to the confidence of a prediction, whereas accuracy depends only
+on its class. The two measures also use different data here.
+
+Each simulation used one generated dataset, and the runs combine
+the effects of changing the length and the direction of the step.
+A focused follow-up would repeat the small-batch noisy network
+condition with a control that computes the robust step on its own
+batch, then uses that step's length in direction $-g_k$. Comparing
+the two at the same gradient budget would test whether the observed
+gain depends on changing direction.
 
 \begin{thebibliography}{9}
 \bibitem{scipy-brent}

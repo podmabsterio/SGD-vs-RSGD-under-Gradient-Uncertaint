@@ -1,0 +1,188 @@
+{
+  "SGD": {
+    "metrics": {
+      "train_loss": {
+        "mean": null,
+        "std": null
+      },
+      "validation_loss": {
+        "mean": null,
+        "std": null
+      },
+      "test_loss": {
+        "mean": null,
+        "std": null
+      },
+      "test_accuracy": {
+        "mean": null,
+        "std": null
+      },
+      "gradient_evaluations": {
+        "mean": null,
+        "std": null
+      },
+      "zero_step_frequency": {
+        "mean": null,
+        "std": null
+      },
+      "runtime": {
+        "mean": null,
+        "std": null
+      },
+      "iterations": {
+        "mean": null,
+        "std": null
+      }
+    },
+    "repetitions": 50,
+    "converged_runs": 0,
+    "budget_stops": 50,
+    "failed_runs": 0,
+    "seeds": [
+      1042,
+      1043,
+      1044,
+      1045,
+      1046,
+      1047,
+      1048,
+      1049,
+      1050,
+      1051,
+      1052,
+      1053,
+      1054,
+      1055,
+      1056,
+      1057,
+      1058,
+      1059,
+      1060,
+      1061,
+      1062,
+      1063,
+      1064,
+      1065,
+      1066,
+      1067,
+      1068,
+      1069,
+      1070,
+      1071,
+      1072,
+      1073,
+      1074,
+      1075,
+      1076,
+      1077,
+      1078,
+      1079,
+      1080,
+      1081,
+      1082,
+      1083,
+      1084,
+      1085,
+      1086,
+      1087,
+      1088,
+      1089,
+      1090,
+      1091
+    ],
+    "failures": []
+  },
+  "R-SGD": {
+    "metrics": {
+      "train_loss": {
+        "mean": null,
+        "std": null
+      },
+      "validation_loss": {
+        "mean": null,
+        "std": null
+      },
+      "test_loss": {
+        "mean": null,
+        "std": null
+      },
+      "test_accuracy": {
+        "mean": null,
+        "std": null
+      },
+      "gradient_evaluations": {
+        "mean": null,
+        "std": null
+      },
+      "zero_step_frequency": {
+        "mean": null,
+        "std": null
+      },
+      "runtime": {
+        "mean": null,
+        "std": null
+      },
+      "iterations": {
+        "mean": null,
+        "std": null
+      }
+    },
+    "repetitions": 50,
+    "converged_runs": 0,
+    "budget_stops": 50,
+    "failed_runs": 0,
+    "seeds": [
+      1042,
+      1043,
+      1044,
+      1045,
+      1046,
+      1047,
+      1048,
+      1049,
+      1050,
+      1051,
+      1052,
+      1053,
+      1054,
+      1055,
+      1056,
+      1057,
+      1058,
+      1059,
+      1060,
+      1061,
+      1062,
+      1063,
+      1064,
+      1065,
+      1066,
+      1067,
+      1068,
+      1069,
+      1070,
+      1071,
+      1072,
+      1073,
+      1074,
+      1075,
+      1076,
+      1077,
+      1078,
+      1079,
+      1080,
+      1081,
+      1082,
+      1083,
+      1084,
+      1085,
+      1086,
+      1087,
+      1088,
+      1089,
+      1090,
+      1091
+    ],
+    "failures": []
+  }
+}

@@ -1,0 +1,42 @@
+seed: 1042
+repeats: 50
+n_jobs: 1
+output_dir: output/network_eval/b256_s0
+function:
+  _target_: src.functions.TwoLayerNetwork
+  train_size: 512
+  validation_size: 256
+  test_size: 512
+  data_seed: 2026
+  standardize: false
+  hidden_size: 8
+  batch_size: 256
+  noise_std: 0
+save_budget_metrics: true
+optimizers:
+- _target_: src.optimizers.SGD
+  name: SGD
+  learning_rate: 6
+  decay: 50
+  steps: 500
+  convergence_tolerance: 0.001
+  patience: 5
+- _target_: src.optimizers.RobustSGD
+  name: R-SGD
+  learning_rate: 6
+  decay: 50
+  steps: 500
+  convergence_tolerance: 0.001
+  patience: 5
+  rho: 1.0
+  solver: brent
+  tolerance: 0.01
+metrics:
+- _target_: src.metrics.TrainLoss
+  save_per_iteration: true
+- _target_: src.metrics.ValidationLoss
+  save_per_iteration: true
+- _target_: src.metrics.TestLoss
+- _target_: src.metrics.TestAccuracy
+- _target_: src.metrics.GradientEvaluations
+- _target_: src.metrics.ZeroStepFrequency

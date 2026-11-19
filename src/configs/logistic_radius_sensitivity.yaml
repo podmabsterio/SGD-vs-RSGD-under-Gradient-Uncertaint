@@ -1,0 +1,31 @@
+defaults:
+  - logistic_base
+  - _self_
+
+seed: 1042
+save_budget_metrics: true
+output_dir: output/logistic_radius_sensitivity
+
+optimizers:
+  - &rsgd
+    _target_: src.optimizers.RobustSGD
+    name: rho0
+    learning_rate: 0.1
+    decay: 0
+    steps: 500
+    convergence_tolerance: 1.0e-3
+    patience: 5
+    solver: brent
+    tolerance: 1.0e-2
+    rho: 0
+  - {<<: *rsgd, name: rho0.05, rho: 0.05}
+  - {<<: *rsgd, name: rho0.25, rho: 0.25}
+  - {<<: *rsgd, name: rho0.5, rho: 0.5}
+  - {<<: *rsgd, name: rho1, rho: 1}
+  - {<<: *rsgd, name: rho2, rho: 2}
+  - {<<: *rsgd, name: rho4, rho: 4}
+
+metrics:
+  - _target_: src.metrics.TrainLoss
+  - _target_: src.metrics.ZeroStepFrequency
+  - _target_: src.metrics.MeanRelativeStep
